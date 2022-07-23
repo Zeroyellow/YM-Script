@@ -11,25 +11,25 @@ v2p 圈×变量  zycookie
 export zycookie='手机号1#密码1@手机号2#密码2'
 
 
-增加支付宝账号变量
 
-export zynmcookie='&name=王五&ali_account=13325118858'
+打开自由之刃app   
+抓网址
+http://zyzr.xkrvlj.cn:91/home/blind/openBlind?
+抓一个摇一摇的  请求体末尾  （默认自带一个我的   不能用  就替换成自己的）
 
-复制变量替换成需要绑定的支付宝账号和姓名
+比如请求体是
+&type=2&phone_type=ios&eu-stamp=1658238834814&eu-sign=a0b1945da5c4eebece8b4b5534f8ce2a
 
-手机号也可以替换成邮箱
+对应变量
+export zysigncookie='&eu-stamp=1658238834814&eu-sign=a0b1945da5c4eebece8b4b5534f8ce2a'
 
-变量内容只可以替换姓名跟账号  别的不需要改动
-一次只能填一个
-检测到没有绑定支付宝的账号会自动绑定变量里的支付宝
 
 */
-const jsname = '自由之刃-自动绑定alipay'
+const jsname = '自由之刃'
 const $ = Env(jsname)
 let ck = ($.isNode() ? process.env.zycookie : $.getdata('zycookie')) || '';
-
-let name =($.isNode() ? process.env.zynmcookie :$.getdata('zynmcookie')) || '';
 let ckArr = []
+let sign = ($.isNode() ? process.env.zysigncookie : $.getdata('zysigncookie')) || '&eu-stamp=1658238834814&eu-sign=a0b1945da5c4eebece8b4b5534f8ce2a';
 let envSplitor = ['@']
 !(async () => {
 
@@ -80,12 +80,12 @@ async function login(sj, pwd) {
             console.log(`${result.msg} 余额：${result.data.user_money} 自由豆 ${result.data.bean}`)
             await check()
             this.cashx=result.data.user_money
-                if (this.cashx > 0&& this.cashx <10) {
+                if (this.cashx > 0&& this.cashx <15) {
                     this.num = 1
                     this.o = "可提现一元"
                     await tx()
                 }
-                if (this.cashx >= 10&& this.cashx <40) {
+                if (this.cashx >= 15&& this.cashx <40) {
                     this.num = 20
                     this.o = "可提现二十元"
                     await tx()
@@ -95,6 +95,8 @@ async function login(sj, pwd) {
                     this.o = "可提现五十元"
                     await tx()
                 }
+                
+            
             for (let i = 1; i <= 2; i++) {
                 this.x = i
                 if (this.x == 1) this.m = `普通宝箱`
@@ -113,10 +115,29 @@ async function login(sj, pwd) {
     }
 }
 
+async function check() {
+    try {
+        let url = `http://zyzr.xkrvlj.cn:91/home/user/getUserInfo?`
+        let body = ``
+        let zy = `${zyid}`
+        let to = `${zyto}`
+        let urlObject = mini(url, zy, to, body)
+        await httpRequest('get', urlObject)
+        let result = httpResult;
+        if (result.data.alipay_account==null) {
+            console.log(`\n检测到支付宝未绑定`)
+        } else console.log(`\n检测到支付宝已绑定 绑定号码 `+result.data.alipay_account)
+    } catch (e) {
+        console.log(e)
+    } finally {
+        return new Promise((resolve) => { resolve(1) });
+    }
+}
+
 async function openBlind() {
     try {
         let url = `http://zyzr.xkrvlj.cn:91/home/blind/openBlind?`
-        let body = `&type=${this.x}&phone_type=ios`
+        let body = `&type=${this.x}&phone_type=ios${sign}`
         let zy = `${zyid}`
         let to = `${zyto}`
         let urlObject = mini(url, zy, to, body)
@@ -154,47 +175,6 @@ async function tx() {
     }
 }
 
-async function check() {
-    try {
-        let url = `http://zyzr.xkrvlj.cn:91/home/user/getUserInfo?`
-        let body = ``
-        let zy = `${zyid}`
-        let to = `${zyto}`
-        let urlObject = mini(url, zy, to, body)
-        await httpRequest('get', urlObject)
-        let result = httpResult;
-        if (result.data.alipay_account==null) {
-            console.log(`\n检测到支付宝未绑定`)
-            await bd();
-        } else console.log(`\n检测到支付宝已绑定 绑定号码`+result.data.alipay_account)
-    } catch (e) {
-        console.log(e)
-    } finally {
-        return new Promise((resolve) => { resolve(1) });
-    }
-}
-
-
-async function bd() {
-    try {
-        let url = `http://zyzr.xkrvlj.cn:91/home/user/bindAli?`
-        let body = `${name}`
-        let zy = `${zyid}`
-        let to = `${zyto}`
-        let urlObject = mini(url, zy, to, body)
-        await httpRequest('post', urlObject)
-        let result = httpResult;
-        if (result.code == 1) {
-            console.log(`\n支付宝绑定成功`)
-        } else if (result.code !== 0) {
-            console.log(`\n绑定失败：${result.msg}`)
-        }
-    } catch (e) {
-        console.log(e)
-    } finally {
-        return new Promise((resolve) => { resolve(1) });
-    }
-}
 
 /////////////////////////////////
 function populateUrlObject(url, body = '') {
