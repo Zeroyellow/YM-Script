@@ -11,7 +11,6 @@ v2p 圈×变量  zycookie
 export zycookie='手机号1#密码1@手机号2#密码2'
 
 
-
 打开自由之刃app   
 抓网址
 http://zyzr.xkrvlj.cn:91/home/blind/openBlind?
@@ -147,7 +146,7 @@ async function openBlind() {
             console.log(`\n摇一摇 ${this.m} 得现金：${result.msg}`)
         } else if (result.code == '-20') {
             console.log(`\n摇一摇 ${this.m} 得现金：今天已经摇过了`)
-        }
+        }else console.log(`\n摇一摇 ${this.m} 得现金：`+result.msg)
     } catch (e) {
         console.log(e)
     } finally {
